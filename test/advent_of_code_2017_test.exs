@@ -4,4 +4,5 @@ defmodule AdventOfCode2017Test do
   doctest Day2.Checksum
   doctest Day3.Grid
   doctest Day4.Passphrase
+  doctest Day4.AnagramPassphrase
 end

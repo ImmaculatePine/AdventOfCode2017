@@ -5,4 +5,5 @@ defmodule AdventOfCode2017Test do
   doctest Day3.Grid
   doctest Day4.Passphrase
   doctest Day4.AnagramPassphrase
+  doctest Day5.Jump
 end

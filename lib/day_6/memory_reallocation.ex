@@ -8,18 +8,20 @@ defmodule Day6.MemoryReallocation do
 
   @doc """
       iex> Day6.MemoryReallocation.run([0, 2, 7, 0])
-      5
+      {5, 4}
   """
   def run(banks) when is_list(banks) do
-    run(banks, MapSet.new([[banks]]))
+    run(banks, [[banks]])
   end
 
   defp run(banks, stack) do
     reallocated_banks = reallocate(banks)
-    if MapSet.member?(stack, reallocated_banks) do
-      MapSet.size(stack)
+    if reallocated_banks in stack do
+      stack_size = length(stack)
+      infinite_loop_start = stack |> Enum.reverse |> Enum.find_index(&(&1 == reallocated_banks))
+      {stack_size, stack_size - infinite_loop_start}
     else
-      run(reallocated_banks, MapSet.put(stack, reallocated_banks))
+      run(reallocated_banks, [reallocated_banks | stack])
     end
   end
 

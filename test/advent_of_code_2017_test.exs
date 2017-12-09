@@ -6,4 +6,5 @@ defmodule AdventOfCode2017Test do
   doctest Day4.Passphrase
   doctest Day4.AnagramPassphrase
   doctest Day5.Jump
+  doctest Day6.MemoryReallocation
 end

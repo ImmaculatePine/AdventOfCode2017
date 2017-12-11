@@ -12,4 +12,5 @@ defmodule AdventOfCode2017Test do
   doctest Day8.Registry
   doctest Day8.Op
   doctest Day9.Stream
+  doctest Day10.Knot
 end

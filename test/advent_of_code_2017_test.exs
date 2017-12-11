@@ -9,4 +9,6 @@ defmodule AdventOfCode2017Test do
   doctest Day6.MemoryReallocation
   doctest Day7.Tower
   doctest Day7.Program
+  doctest Day8.Registry
+  doctest Day8.Op
 end

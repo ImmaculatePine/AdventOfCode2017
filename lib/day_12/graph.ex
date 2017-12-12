@@ -5,8 +5,6 @@ defmodule Day12.Graph do
       |> Stream.map(&String.trim_trailing/1)
       |> Enum.to_list
       |> Enum.reduce(%{}, fn (input, acc) -> add_edge(acc, input) end)
-      |> find_nodes_connected_with(0)
-      |> length
   end
 
   @doc """
@@ -18,17 +16,59 @@ defmodule Day12.Graph do
       iex> Day12.Graph.add_edge("4 <-> 2, 3, 6") |>
       iex> Day12.Graph.add_edge("5 <-> 6") |>
       iex> Day12.Graph.add_edge("6 <-> 4, 5") |>
-      iex> Day12.Graph.find_nodes_connected_with(0) |>
+      iex> Day12.Graph.count_of_connected_edges(0)
+      6
+  """
+  def count_of_connected_edges(graph, edge) do
+    graph |> traverse(edge) |> length
+  end
+
+  @doc """
+      iex> %{} |>
+      iex> Day12.Graph.add_edge("0 <-> 2") |>
+      iex> Day12.Graph.add_edge("1 <-> 1") |>
+      iex> Day12.Graph.add_edge("2 <-> 0, 3, 4") |>
+      iex> Day12.Graph.add_edge("3 <-> 2, 4") |>
+      iex> Day12.Graph.add_edge("4 <-> 2, 3, 6") |>
+      iex> Day12.Graph.add_edge("5 <-> 6") |>
+      iex> Day12.Graph.add_edge("6 <-> 4, 5") |>
+      iex> Day12.Graph.number_of_disconnected_groups
+      2
+  """
+  def number_of_disconnected_groups(graph) do
+    number_of_disconnected_groups(graph, 0, Map.keys(graph), [])
+  end
+
+  defp number_of_disconnected_groups(_graph, counter, [], _traversed) do
+    counter
+  end
+
+  defp number_of_disconnected_groups(graph, counter, [head | tail], traversed) do
+    if head in traversed do
+      number_of_disconnected_groups(graph, counter, tail, traversed)
+    else
+      number_of_disconnected_groups(graph, counter + 1, tail, traversed ++ traverse(graph, head))
+    end
+  end
+
+  @doc """
+      iex> %{} |>
+      iex> Day12.Graph.add_edge("0 <-> 2") |>
+      iex> Day12.Graph.add_edge("1 <-> 1") |>
+      iex> Day12.Graph.add_edge("2 <-> 0, 3, 4") |>
+      iex> Day12.Graph.add_edge("3 <-> 2, 4") |>
+      iex> Day12.Graph.add_edge("4 <-> 2, 3, 6") |>
+      iex> Day12.Graph.add_edge("5 <-> 6") |>
+      iex> Day12.Graph.add_edge("6 <-> 4, 5") |>
+      iex> Day12.Graph.traverse(0) |>
       iex> Enum.sort
       [0, 2, 3, 4, 5, 6]
   """
-  def find_nodes_connected_with(graph, edge, found \\ []) do
-    neighbours = graph
-      |> Map.fetch!(edge)
+  def traverse(graph, start_edge, traversed \\ []) do
+    graph
+      |> Map.fetch!(start_edge)
       |> MapSet.to_list
-    neighbours
-      |> Enum.reduce(found, fn (edge, acc) -> if edge in acc, do: acc, else: find_nodes_connected_with(graph, edge, [edge | acc]) end)
-      |> Enum.uniq
+      |> Enum.reduce(traversed, fn (edge, acc) -> if edge in acc, do: acc, else: traverse(graph, edge, [edge | acc]) end)
   end
 
   @doc """

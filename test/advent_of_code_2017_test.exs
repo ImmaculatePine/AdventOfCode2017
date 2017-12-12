@@ -13,4 +13,5 @@ defmodule AdventOfCode2017Test do
   doctest Day8.Op
   doctest Day9.Stream
   doctest Day10.Knot
+  doctest Day11.HexGrid
 end

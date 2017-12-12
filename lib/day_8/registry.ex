@@ -1,9 +1,17 @@
 defmodule Day8.Registry do
-  def run(filepath) do
+  def read_instructions(filepath) do
     File.stream!(filepath) 
       |> Stream.map(&String.trim_trailing/1)
       |> Enum.to_list
-      |> Enum.reduce(%{}, fn (line, registry) -> run(registry, line) end)
+  end
+
+  def run(instructions) when is_list(instructions) do
+    Enum.reduce(instructions, %{}, fn (line, registry) -> run(registry, line) end)
+  end
+
+  def run_and_track_max_value(instructions) when is_list(instructions) do
+    {_, max_value} = Enum.reduce(instructions, {%{}, 0}, fn (line, acc) -> run_and_track_max_value(acc, line) end)
+    max_value
   end
 
   @doc """
@@ -11,7 +19,11 @@ defmodule Day8.Registry do
       {:c, 30}
   """
   def max(registry) do
-    Enum.max_by(registry, fn {_, v} -> v end)
+    if Enum.empty?(registry) do
+      {nil, 0}
+    else
+      Enum.max_by(registry, fn {_, v} -> v end)
+    end
   end
 
   @doc """
@@ -30,6 +42,18 @@ defmodule Day8.Registry do
     else
       registry
     end
+  end
+
+  @doc """
+      iex> Day8.Registry.run_and_track_max_value({%{a: 100}, 0}, "a inc 100 if b > 0")
+      {%{a: 100}, 100}
+      iex> Day8.Registry.run_and_track_max_value({%{a: 100}, 100}, "a inc 100 if b == 0")
+      {%{a: 200}, 200}
+  """
+  def run_and_track_max_value({registry, max_value}, instruction) do
+    new_registry = run(registry, instruction)
+    {_, registry_max_value} = max(new_registry)
+    {new_registry, Enum.max([registry_max_value, max_value])}
   end
 
   @doc """

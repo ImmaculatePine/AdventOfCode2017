@@ -16,4 +16,5 @@ defmodule AdventOfCode2017Test do
   doctest Day11.HexGrid
   doctest Day12.Graph
   doctest Day13.Firewall
+  doctest Day14.Defragmentation
 end

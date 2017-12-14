@@ -12,14 +12,57 @@ defmodule Day13.Firewall do
       iex> Day13.Firewall.add_layer("0: 3") |>
       iex> Day13.Firewall.add_layer("1: 2") |>
       iex> Day13.Firewall.add_layer("4: 4")
-      %{0 => {3, 0, :down}, 1 => {2, 0, :down}, 4 => {4, 0, :down}}
+      %{0 => {3, 0, 4}, 1 => {2, 0, 2}, 4 => {4, 0, 6}}
   """
   def add_layer(firewall, input) when is_binary(input) do
     add_layer(firewall, Regex.run(~r/(\d+): (\d+)/, input))
   end
 
   def add_layer(firewall, [_, layer, depth]) do
-    Map.put(firewall, String.to_integer(layer), {String.to_integer(depth), 0, :down})
+    Map.put(firewall, String.to_integer(layer), build_layer(depth))
+  end
+
+  def build_layer(depth) when is_binary(depth) do
+    depth |> String.to_integer |> build_layer
+  end
+
+  def build_layer(depth) when is_integer(depth) do
+    {depth, 0, 2 * (depth - 1)}
+  end
+
+  @doc """
+  Generates the whole run through the firewall in time.
+  First scanner's position is shown at 0psec of time, second's at 1psec and so on.
+
+      iex> firewall = %{0 => {3, 0, 4}, 1 => {2, 0, 2}, 4 => {4, 0, 6}}
+      iex> Day13.Firewall.run_in_time(firewall, 0)
+      %{0 => {3, 0, 4}, 1 => {2, 1, 2}, 4 => {4, 2, 6}}
+      iex> Day13.Firewall.run_in_time(firewall, 1)
+      %{0 => {3, 1, 4}, 1 => {2, 0, 2}, 4 => {4, 1, 6}}
+  """
+  def run_in_time(firewall, delay) do
+    firewall
+     |> Enum.map(fn {layer, scanner} -> {layer, scanner_in_time(scanner, delay + layer)} end)
+     |> Map.new
+  end
+
+  @doc """
+  Generates a new scanner position in the specified moment of time
+
+      iex> Day13.Firewall.scanner_in_time({3, 0, 4}, 0)
+      {3, 0, 4}
+      iex> Day13.Firewall.scanner_in_time({3, 0, 4}, 1)
+      {3, 1, 4}
+      iex> Day13.Firewall.scanner_in_time({3, 0, 4}, 10)
+      {3, 2, 4}
+  """
+  def scanner_in_time({depth, _, period}, time) do
+    offset = rem(time, period)
+    if offset > depth - 1 do
+      {depth, period - offset, period}
+    else
+      {depth, offset, period}
+    end
   end
 
   @doc """
@@ -33,56 +76,9 @@ defmodule Day13.Firewall do
   """
   def severity(firewall) do
     firewall
-    |> severity(0, [])
-    |> Enum.reduce(0, fn (layer, acc) ->
-      {depth, _, _} = Map.fetch!(firewall, layer)
-      acc + depth * layer
-    end)
-  end
-
-  defp severity(firewall, current_position, caughts) do
-    if current_position <= last_layer(firewall) do
-      severity(
-        step(firewall),
-        current_position + 1,
-        (if caught?(firewall, current_position), do: [current_position | caughts], else: caughts)
-      )
-    else
-      Enum.reverse(caughts)
-    end
-  end
-
-  def last_layer(firewall) do
-    firewall
-    |> Map.keys
-    |> Enum.max
-  end
-
-  @doc """
-    iex> firewall = %{0 => {3, 1, :up}, 1 => {2, 0, :down}, 4 => {4, 3, :down}}
-    iex> Day13.Firewall.caught?(firewall, 0)
-    false
-    iex> Day13.Firewall.caught?(firewall, 1)
-    true
-    iex> Day13.Firewall.caught?(firewall, 2)
-    false
-  """
-  def caught?(firewall, position) do
-    case Map.fetch(firewall, position) do
-      {:ok, {_, scanner_position, _}} -> scanner_position == 0
-      :error -> false
-    end
-  end
-
-  @doc """
-      iex> {3, 0, :down} |> Day13.Firewall.step |> Day13.Firewall.step |> Day13.Firewall.step
-      {3, 1, :up}
-  """
-  def step({depth, scanner_position, direction}) do
-    case direction do
-      :up -> if scanner_position > 0, do: {depth, scanner_position - 1, :up}, else: {depth, scanner_position + 1, :down}
-      :down -> if scanner_position < depth - 1, do: {depth, scanner_position + 1, :down}, else: {depth, scanner_position - 1, :up}
-    end
+      |> run_in_time(0)
+      |> Enum.filter(fn {_, {_, position, _}} -> position == 0 end)
+      |> Enum.reduce(0, fn ({layer, {depth, _, _}}, acc) -> acc + layer * depth end)
   end
 
   @doc """
@@ -90,14 +86,22 @@ defmodule Day13.Firewall do
       iex> Day13.Firewall.add_layer("0: 3") |>
       iex> Day13.Firewall.add_layer("1: 2") |>
       iex> Day13.Firewall.add_layer("4: 4") |>
-      iex> Day13.Firewall.step |>
-      iex> Day13.Firewall.step |>
-      iex> Day13.Firewall.step
-      %{0 => {3, 1, :up}, 1 => {2, 1, :down}, 4 => {4, 3, :down}}
+      iex> Day13.Firewall.add_layer("6: 4") |>
+      iex> Day13.Firewall.safe_delay
+      10
   """
-  def step(firewall) do
-    firewall
-      |> Enum.map(fn {number, layer} -> {number, step(layer)} end)
-      |> Map.new
+  def safe_delay(firewall) do
+    safe_delay(firewall, 0)
+  end
+
+  def safe_delay(firewall, delay) do
+    caught = firewall
+      |> run_in_time(delay)
+      |> Enum.any?(fn {_, {_, position, _}} -> position == 0 end)
+    if caught do
+      safe_delay(firewall, delay + 1)
+    else
+      delay
+    end
   end
 end

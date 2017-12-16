@@ -18,4 +18,5 @@ defmodule AdventOfCode2017Test do
   doctest Day13.Firewall
   doctest Day14.Defragmentation
   doctest Day15.Generator
+  doctest Day16.Dance
 end

@@ -17,39 +17,74 @@ defmodule Day16.Dance do
       |> parse
   end
 
-  def read_and_dance(data, filepath) do
-    dance(data, File.read!(filepath))
+  def read_and_dance(data, filepath, times \\ 1) do
+    dance(data, File.read!(filepath), times)
   end
 
   @doc """
-      iex> Day16.Dance.dance("abcde", "s1,x3/4,pe/b")
+      iex> Day16.Dance.dance("abcde", "s1,x3/4,pe/b", 1)
       "baedc"
+      iex> Day16.Dance.dance("abcde", "s1,x3/4,pe/b", 2)
+      "ceadb"
+      iex> Day16.Dance.dance("abcde", "s1,x3/4,pe/b", 10)
+      "ceadb"
   """
-  def dance(data, movements) when is_binary(movements) do
+  def dance(data, movements, times) when is_binary(data) and is_binary(movements) do
     movements_list = movements
       |> String.split(",")
       |> Enum.map(&parse/1)
-    data
-      |> String.split("", trim: true)
-      |> dance(movements_list)
+    data_list = String.split(data, "", trim: true)
+    cycles = cycles(data_list, movements_list)
+    data_list
+      |> dance(movements_list, rem(times, cycles))
       |> Enum.join
   end
 
-  def dance(data, []) do
-    data
+  def dance(list, movements, times) when is_list(list) and is_list(movements) do
+    dance(list, movements, movements, times)
   end
 
-  def dance(data, [head | tail]) do
-    data
+  @doc """
+  Calculates how many cycles of dance should be repeated to get the same combination again
+
+      iex> list = ["a", "b", "c", "d", "e"]
+      iex> movements = "s1,x3/4,pe/b" |> String.split(",") |> Enum.map(&Day16.Dance.parse/1)
+      iex> Day16.Dance.cycles(list, movements)
+      4
+  """
+  def cycles(list, movements) do
+    cycles(list, list, movements, 0)
+  end
+
+  defp cycles(original_list, original_list, _movements, counter) when counter > 0 do
+    counter
+  end
+
+  defp cycles(list, original_list, movements, counter) do
+    list
+      |> dance(movements, 1)
+      |> cycles(original_list, movements, counter + 1)
+  end
+
+  def dance(list, _movements, _all_movements, 0) do
+    list
+  end
+
+  def dance(list, [], all_movements, times) do
+    dance(list, all_movements, all_movements, times - 1)
+  end
+
+  def dance(list, [head | tail], all_movements, times) do
+    list
       |> move(head)
-      |> dance(tail)
+      |> dance(tail, all_movements, times)
   end
 
-  def move(data, movement) do
+  def move(list, movement) do
     case movement do
-      {:spin, x} -> spin(data, x)
-      {:exchange, x, y} -> exchange(data, x, y)
-      {:partner, x, y} -> partner(data, x, y)
+      {:spin, x} -> spin(list, x)
+      {:exchange, x, y} -> exchange(list, x, y)
+      {:partner, x, y} -> partner(list, x, y)
     end
   end
 

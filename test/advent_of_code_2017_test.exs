@@ -20,4 +20,5 @@ defmodule AdventOfCode2017Test do
   doctest Day14.Defragmentation
   doctest Day15.Generator
   doctest Day16.Dance
+  doctest Day17.Buffer
 end

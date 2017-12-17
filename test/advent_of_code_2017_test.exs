@@ -3,6 +3,7 @@ defmodule AdventOfCode2017Test do
   doctest Day1.Captcha
   doctest Day2.Checksum
   doctest Day3.Grid
+  doctest Day3.SumSpiral
   doctest Day4.Passphrase
   doctest Day4.AnagramPassphrase
   doctest Day5.Jump

@@ -50,12 +50,6 @@ defmodule Day18.Registry do
     end
   end
 
-  def recover(instructions) do
-    instructions
-      |> run
-      |> read_meta(:last_played_frequency)
-  end
-
   @doc """
       iex> ["set a 1" , "add a 2", "mul a a", "mod a 5", "snd a", "set a 0", "rcv a", "jgz a -1", "set a 1", "jgz a -2"] |>
       iex> Day18.Registry.run

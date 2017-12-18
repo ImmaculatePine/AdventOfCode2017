@@ -23,4 +23,6 @@ defmodule AdventOfCode2017Test do
   doctest Day17.Buffer
   doctest Day18.Registry
   doctest Day18.Op
+  doctest Day18.Duet
+  doctest Day18.Program
 end

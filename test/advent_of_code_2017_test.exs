@@ -21,4 +21,6 @@ defmodule AdventOfCode2017Test do
   doctest Day15.Generator
   doctest Day16.Dance
   doctest Day17.Buffer
+  doctest Day18.Registry
+  doctest Day18.Op
 end

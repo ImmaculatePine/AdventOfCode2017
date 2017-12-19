@@ -25,4 +25,5 @@ defmodule AdventOfCode2017Test do
   doctest Day18.Op
   doctest Day18.Duet
   doctest Day18.Program
+  doctest Day19.Path
 end

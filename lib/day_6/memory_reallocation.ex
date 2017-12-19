@@ -1,11 +1,4 @@
 defmodule Day6.MemoryReallocation do
-  def run(filepath) when is_binary(filepath) do
-    File.read!(filepath)
-      |> String.split(~r/\s/, trim: true)
-      |> Enum.map(&String.to_integer/1)
-      |> run
-  end
-
   @doc """
       iex> Day6.MemoryReallocation.run([0, 2, 7, 0])
       {5, 4}

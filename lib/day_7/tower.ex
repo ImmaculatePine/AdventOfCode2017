@@ -6,10 +6,8 @@ defmodule Day7.Tower do
     %{}
   end
 
-  def new(filepath) do
-    File.stream!(filepath) 
-      |> Stream.map(&String.trim_trailing/1)
-      |> Enum.to_list
+  def new(input) do
+    input
       |> Enum.reduce(Tower.new, fn (line, tower) -> Tower.put(tower, line) end)
       |> Tower.build_dependencies
       |> Tower.calculate_depths

@@ -9,14 +9,6 @@ defmodule Day5.Jump do
     run(instructions, transformation, 0, 0)
   end
 
-  def run(filepath, transformation) when is_binary(filepath) do
-    File.stream!(filepath) 
-      |> Stream.map(&String.trim_trailing/1)
-      |> Stream.map(&String.to_integer/1)
-      |> Enum.to_list
-      |> run(transformation)
-  end
-
   defp run(instructions, transformation, current_position, steps_done) do
     current_instruction = Enum.at(instructions, current_position)
     next_position = current_position + current_instruction

@@ -1,12 +1,4 @@
 defmodule Day2.Checksum do
-  def read(filepath) do
-    filepath
-      |> File.stream!
-      |> Stream.map(&String.trim_trailing/1)
-      |> Stream.map(fn line -> line |> String.split(" ", trim: true) |> Enum.map(&String.to_integer/1) end)
-      |> Enum.to_list
-  end
-
   @doc """
       iex> Day2.Checksum.calculate([[5, 1, 9, 5], [7, 5, 3], [2, 4, 6, 8]])
       18

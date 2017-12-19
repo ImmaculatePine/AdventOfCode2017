@@ -36,17 +36,17 @@ defmodule Day19.Path do
 
   @doc """
       iex> Day19.Path.sample |> Day19.Path.parse |> Day19.Path.traverse
-      ["A", "B", "C", "D", "E", "F"]
+      {["A", "B", "C", "D", "E", "F"], 38}
   """
   def traverse(path) do
-    traverse(path, find_start(path), :down, [])
+    traverse(path, find_start(path), :down, 0, [])
   end
 
-  defp traverse(path, current_position, direction, collected_items) do
+  defp traverse(path, current_position, direction, steps_counter, collected_items) do
     new_collection = collect(path, current_position, collected_items)
     case next_position(path, current_position, direction) do
-      nil -> Enum.reverse(new_collection)
-      {dir, pos} -> traverse(path, pos, dir, new_collection)
+      nil -> {Enum.reverse(new_collection), steps_counter + 1}
+      {dir, pos} -> traverse(path, pos, dir, steps_counter + 1, new_collection)
     end
   end
 

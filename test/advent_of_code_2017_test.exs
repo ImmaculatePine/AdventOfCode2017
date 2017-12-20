@@ -26,4 +26,5 @@ defmodule AdventOfCode2017Test do
   doctest Day18.Duet
   doctest Day18.Program
   doctest Day19.Path
+  doctest Day20.Particle
 end

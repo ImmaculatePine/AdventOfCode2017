@@ -27,4 +27,6 @@ defmodule AdventOfCode2017Test do
   doctest Day18.Program
   doctest Day19.Path
   doctest Day20.Particle
+  doctest Day21.Fractal
+  doctest Day21.Rule
 end

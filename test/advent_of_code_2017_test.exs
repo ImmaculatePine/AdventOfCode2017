@@ -30,4 +30,6 @@ defmodule AdventOfCode2017Test do
   doctest Day21.Fractal
   doctest Day21.Rule
   doctest Day22.Grid
+  doctest Day23.Registry
+  doctest Day23.Op
 end

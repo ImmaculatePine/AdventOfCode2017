@@ -29,4 +29,5 @@ defmodule AdventOfCode2017Test do
   doctest Day20.Particle
   doctest Day21.Fractal
   doctest Day21.Rule
+  doctest Day22.Grid
 end

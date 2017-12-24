@@ -1,13 +1,4 @@
 defmodule Day22.Grid do
-  @doc """
-      iex> input = \"\"\"
-      iex> ..#
-      iex> #..
-      iex> ...
-      iex> \"\"\"
-      iex> Day22.Grid.parse(input)
-      %{{-1, -1} => 0, {-1, 0} => 0, {-1, 1} => 1, {0, -1} => 1, {0, 0} => 0, {0, 1} => 0, {1, -1} => 0, {1, 0} => 0, {1, 1} => 0}
-  """
   def parse(input) do
     points = input
       |> String.split("\n")
@@ -26,52 +17,45 @@ defmodule Day22.Grid do
       |> String.split("", trim: true)
       |> Stream.with_index
       |> Stream.map(fn
-           {".", col} -> {{row, col,}, 0}
-           {"#", col} -> {{row, col,}, 1}
+           {".", col} -> {{row, col,}, :clean}
+           {"#", col} -> {{row, col,}, :infected}
          end)
       |> Enum.to_list
   end
 
   @doc """
-      iex> input = \"\"\"
+      iex> grid = \"\"\"
       iex> ..#
       iex> #..
       iex> ...
-      iex> \"\"\"
-      iex> {_, infected_count} = input |> Day22.Grid.parse |> Day22.Grid.go(70)
+      iex> \"\"\" |> Day22.Grid.parse
+      iex> {_, infected_count} = Day22.Grid.go(grid, 70, Day22.Part1)
       iex> infected_count
       41
+      iex> {_, infected_count} = Day22.Grid.go(grid, 100, Day22.Part2)
+      iex> infected_count
+      26
   """
-  def go(grid, bursts_count) do
-    go(grid, bursts_count, {0, 0}, :up, 0)
+  def go(grid, bursts_count, rules) do
+    go(grid, bursts_count, {0, 0}, :up, 0, rules)
   end
 
-  defp go(grid, 0, _position, _direction, infected_count) do
+  defp go(grid, 0, _position, _direction, infected_count, _rules) do
     {grid, infected_count}
   end
 
-  defp go(grid, bursts_count, position, direction, infected_count) do
-    new_direction = case grid |> value_at(position) do
-      0 -> direction |> turn_left
-      1 -> direction |> turn_right
-    end
+  defp go(grid, bursts_count, position, direction, infected_count, rules) do
+    new_direction = rules.new_direction(value_at(grid, position), direction)
     new_position = step(position, new_direction)
-    {new_grid, action} = update_at(grid, position)
+    {new_grid, action} = rules.update_at(grid, position)
     new_infected_count = if action == :infected, do: infected_count + 1, else: infected_count
-    go(new_grid, bursts_count - 1, new_position, new_direction, new_infected_count)
+    go(new_grid, bursts_count - 1, new_position, new_direction, new_infected_count, rules)
   end
 
   def value_at(grid, position) do
     case Map.fetch(grid, position) do
       {:ok, value} -> value
-      :error -> 0
-    end
-  end
-
-  def update_at(grid, position) do
-    case value_at(grid, position) do
-      0 -> {Map.put(grid, position, 1), :infected}
-      1 -> {Map.put(grid, position, 0), :cleaned}
+      :error -> :clean
     end
   end
 
@@ -89,6 +73,11 @@ defmodule Day22.Grid do
   def turn_left(:left), do: :down
   def turn_left(:down), do: :right
   def turn_left(:right), do: :up
+
+  def reverse(:up), do: :down
+  def reverse(:down), do: :up
+  def reverse(:right), do: :left
+  def reverse(:left), do: :right
 
   def diff(:up), do: {-1, 0}
   def diff(:right), do: {0, 1}

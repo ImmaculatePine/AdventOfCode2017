@@ -32,4 +32,6 @@ defmodule AdventOfCode2017Test do
   doctest Day22.Grid
   doctest Day23.Registry
   doctest Day23.Op
+  doctest Day24.Component
+  doctest Day24.Bridge
 end

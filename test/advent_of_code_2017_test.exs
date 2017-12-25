@@ -34,4 +34,6 @@ defmodule AdventOfCode2017Test do
   doctest Day23.Op
   doctest Day24.Component
   doctest Day24.Bridge
+  doctest Day25.Machine
+  doctest Day25.Parser
 end
